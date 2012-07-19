@@ -24,5 +24,10 @@
 # OS generated files #
 ######################
 .DS_Store
-Thumbs.db
+
+autosaves/*
+backups/*
+elpa/*
+
+
 
