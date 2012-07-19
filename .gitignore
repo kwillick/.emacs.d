@@ -7,6 +7,7 @@
 *.o
 *.so
 *.out
+*.elc
 
 # Packages #
 ############
@@ -28,6 +29,7 @@
 autosaves/*
 backups/*
 elpa/*
+tramp
 
 
 

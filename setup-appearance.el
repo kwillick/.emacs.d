@@ -5,11 +5,11 @@
 
 
 ;; Format title to show file path or buffer name
-(defun kipps-frame-title-format ()
+(defun my-frame-title-format ()
   (let ((buf-name (buffer-file-name)))
     (if buf-name
         (abbreviate-file-name buf-name)
       "%b")))
 
 (setq frame-title-format 
-      '("" (:eval (kipps-frame-title-format))))
+      '("" (:eval (my-frame-title-format))))

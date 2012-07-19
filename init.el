@@ -31,41 +31,8 @@
  '(standard-indent 2)
  '(tool-bar-mode nil))
 
-
-;; Add melpa package archive
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(package-initialize)
-
-
-(defvar kipps-packages 
-  '(magit haskell-mode solarized-theme yasnippet popup)
-  "A list of the packages I want to ensure are installed")
-
-(defun kipps-all-true-p (list)
-  (if (null list)
-      t
-    (if (car list)
-        (kipps-all-true-p (cdr list))
-      nil)))        
-
-;; Based of preludes prelude-install-packages
-(defun kipps-ensure-packages-installed ()
-  (unless (kipps-all-true-p (mapcar 'package-installed-p kipps-packages))
-    (message "%s" "Some packages are missing. Refreshing package database...")
-    (package-refresh-contents)
-    (message "%s" "Done refreshing package database")
-    ;;install them
-    (dolist (pack kipps-packages)
-      (unless (package-installed-p pack)
-        (package-install pack)))))
-  
-(kipps-ensure-packages-installed)
-
-;; Load theme
-(require 'solarized-theme)
-(load-theme 'solarized-dark t)
+(require 'setup-packages)
+(require 'setup-appearance)
 
 
 ;; put the autosave and backup files in my emacs directory
@@ -81,15 +48,6 @@
 (setq dired-omit-files "\\`\\.DS_Store")
 (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
 
-;;Format title nicely
-(defun kipps-frame-title-format ()
- (let ((buf-name (buffer-file-name)))
-   (if buf-name
-       (abbreviate-file-name buf-name)
-     "%b")))
-
-(setq frame-title-format 
-      '("" (:eval (kipps-frame-title-format))))
 
 ;; yasnippet setup
 (require 'popup)
@@ -107,7 +65,15 @@
      (mapcar
       (lambda (choice)
         (popup-make-item
-         (or (and display-fn (funcall display-fn choice))
+         (or (and display-fn (funcall display-fn choice));;Format title nicely
+(defun kipps-frame-title-format ()
+ (let ((buf-name (buffer-file-name)))
+   (if buf-name
+       (abbreviate-file-name buf-name)
+     "%b")))
+
+(setq frame-title-format 
+      '("" (:eval (kipps-frame-title-format))))
              choice)
          :value choice))
       choices)
@@ -127,3 +93,4 @@
 (setq ido-enable-flex-matching t)
 (setq ido-everywhere t)
 (setq ido-create-new-buffer 'always)
+(setq confirm-nonexistent-file-or-buffer nil)

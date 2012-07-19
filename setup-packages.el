@@ -10,7 +10,7 @@
   '(magit haskell-mode solarized-theme yasnippet popup)
   "A list of the packages I want to ensure are installed")
 
-;; Based of preludes prelude-install-packages
+;; Based off of preludes prelude-install-packages
 (defun my-ensure-packages-installed ()
   (unless (every 'package-installed-p my-packages))
     (message "%s" "Some packages are missing. Refreshing package database...")
