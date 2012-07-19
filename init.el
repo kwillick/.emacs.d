@@ -1,7 +1,8 @@
 
 (add-to-list 'exec-path "/usr/local/bin/")
 
-(require 'cl)
+(add-to-list 'load-path (expand-file-name user-emacs-directory))
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -65,15 +66,7 @@
      (mapcar
       (lambda (choice)
         (popup-make-item
-         (or (and display-fn (funcall display-fn choice));;Format title nicely
-(defun kipps-frame-title-format ()
- (let ((buf-name (buffer-file-name)))
-   (if buf-name
-       (abbreviate-file-name buf-name)
-     "%b")))
-
-(setq frame-title-format 
-      '("" (:eval (kipps-frame-title-format))))
+         (or (and display-fn (funcall display-fn choice))
              choice)
          :value choice))
       choices)

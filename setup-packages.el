@@ -1,3 +1,4 @@
+(require 'cl)
 
 ;; Add melpa package archive
 (require 'package)
@@ -19,6 +20,8 @@
     ;;install them
     (dolist (pack my-packages)
       (unless (package-installed-p pack)
-        (package-install pack)))))
+        (package-install pack))))
   
 (my-ensure-packages-installed)
+
+(provide 'setup-packages)

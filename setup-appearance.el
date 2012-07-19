@@ -13,3 +13,7 @@
 
 (setq frame-title-format 
       '("" (:eval (my-frame-title-format))))
+
+(show-paren-mode 1)
+
+(provide 'setup-appearance)
