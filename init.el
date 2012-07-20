@@ -36,6 +36,16 @@
 (require 'setup-appearance)
 
 
+;; Setup python stuff
+(require 'virtualenv)
+;; set C-c C-v to use my virtualenv
+(add-hook 'python-mode-hook
+          '(lambda ()
+             (define-key python-mode-map
+               (kdb "C-c C-v")
+               'virtualenv-run-python)))
+
+
 ;; put the autosave and backup files in my emacs directory
 (defvar autosave-dir (expand-file-name "~/.emacs.d/autosaves/"))
 (defvar backup-dir (expand-file-name "~/.emacs.d/backups/"))
