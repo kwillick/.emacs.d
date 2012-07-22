@@ -15,10 +15,18 @@
   "minor mode for showing virtualenv name in mode line"
   :init-value nil
   :lighter virtualenv-mode-name)
+
+
+(defun virtualenv-verify-p (env-path)
+  (and (file-exists-p env-path)
+       (file-exists-p (concat (file-name-directory env-path)
+                              "bin/activate_this.py"))))
                 
   
 (defun virtualenv-run-python (activate)
-  (interactive "DVirtualenv Directory:")
+  (interactive "DVirtualenv Directory: ")
+  (unless (virtualenv-verify-p activate)
+    (error "Not a virtualenv directory: %s" activate))
   (let* ((activate-this-py (expand-file-name
                             (concat (file-name-directory activate)
                                     "bin/activate_this.py")))
