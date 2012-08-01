@@ -4,6 +4,33 @@
 (add-to-list 'load-path (expand-file-name user-emacs-directory))
 
 
+(require 'cl)
+
+;; Add melpa package archive
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(package-initialize)
+
+
+(defvar my-packages
+  '(magit haskell-mode solarized-theme yasnippet popup)
+  "A list of the packages I want to ensure are installed")
+
+;; Based off of preludes prelude-install-packages
+(defun my-ensure-packages-installed ()
+  (unless (every 'package-installed-p my-packages))
+    (message "%s" "Some packages are missing. Refreshing package database...")
+    (package-refresh-contents)
+    (message "%s" "Done refreshing package database")
+    ;;install them
+    (dolist (pack my-packages)
+      (unless (package-installed-p pack)
+        (package-install pack))))
+  
+(my-ensure-packages-installed)
+
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -14,7 +41,7 @@
  '(c-echo-syntactic-information-p t)
  '(c-electric-pound-behavior nil)
  '(c-hanging-braces-alist (quote ((defun-close) (class-close) (inline-close) (block-close) (statement-cont) (substatement-open after) (brace-list-open) (brace-list-close) (brace-entry-open) (extern-lang-open after) (namespace-open after) (namespace-close) (module-open after) (module-close) (composition-open after) (composition-close) (inexpr-class-open after) (inexpr-class-close before) (arglist-cont-nonempty))))
- '(c-offsets-alist (quote ((access-label . /) (arglist-close . 0) (inextern-lang . 0) (innamespace . 0) (template-args-cont c-lineup-template-args 0))))
+ '(c-offsets-alist (quote ((access-label . /) (arglist-close . 0) (inextern-lang . 0) (innamespace . 0))))
  '(c-tab-always-indent nil)
  '(c-toggle-auto-hungry-state nil)
  '(column-number-mode t)
@@ -32,21 +59,12 @@
  '(standard-indent 2)
  '(tool-bar-mode nil))
 
-(require 'setup-packages)
+
 (require 'setup-appearance)
 
 
 ;; Setup python stuff
 (require 'virtualenv)
-
-;; (defun my-python-send-buffer ()
-;;   "Clear the python buffer, then send the buffer"
-;;   (interactive)
-;;   (when python-buffer
-;;     (with-current-buffer python-buffer
-;;       (erase-buffer)
-;;       (python-send-string "\n")))
-;;   (python-send-region-and-go (point-min) (point-max)))
 
 (defun my-python-clear-buffer ()
   "Clear the python buffer, if it is running"
@@ -119,3 +137,4 @@
 (require 'server)
 (unless (server-running-p)
   (server-start))
+
