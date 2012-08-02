@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: copyright notice
+# key: copyright
+# expand-env: ((yas/wrap-around-region 'nil))
+# --
+`comment-start`
+ `(let* ((filename (buffer-file-name))
+             (name (if filename
+                       (file-name-nondirectory filename)
+                     (buffer-file-name))))
+    (concat name "\n"))`
+ Copyright (c) `(format-time-string "%Y")` ${1$(user-full-name)}
+`(let* ((width (save-excursion
+                 (re-search-backward "Copyright (c).*")
+                 (- (line-end-position) (point))))
+        (bar-string (make-string (- width 2) ?=)))
+   (save-excursion
+     (re-search-backward (regexp-quote comment-start))
+     (end-of-line)
+     (insert bar-string))
+   (concat bar-string "\n" comment-end))`
+$0

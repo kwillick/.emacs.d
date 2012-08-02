@@ -14,7 +14,7 @@
 
 
 (defvar my-packages
-  '(magit haskell-mode solarized-theme yasnippet popup)
+  '(magit haskell-mode solarized-theme yasnippet)
   "A list of the packages I want to ensure are installed")
 
 ;; Based off of preludes prelude-install-packages
@@ -94,44 +94,42 @@
 (setq dired-omit-files "\\`\\.DS_Store")
 (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
 
-
-;; yasnippet setup
-(require 'popup)
-(require 'yasnippet)
-(yas/initialize)
-
-;; Found at http://blog.iany.me/2012/03/use-popup-isearch-for-yasnippet-prompt/
-;; add some shotcuts in popup menu mode
-(define-key popup-menu-keymap (kbd "M-n") 'popup-next)
-(define-key popup-menu-keymap (kbd "M-p") 'popup-previous)
-
-(defun yas/popup-isearch-prompt (prompt choices &optional display-fn)
-  (when (featurep 'popup)
-    (popup-menu*
-     (mapcar
-      (lambda (choice)
-        (popup-make-item
-         (or (and display-fn (funcall display-fn choice))
-             choice)
-         :value choice))
-      choices)
-     :prompt prompt
-     ;; start isearch mode immediately
-     :isearch t
-     )))
-
-(setq yas/prompt-functions '(yas/popup-isearch-prompt yas/no-prompt))
-
-;; Make C-c c do comment-region
-(define-key global-map (kbd "C-c c") 'comment-region)
-
-
 ;; Setup ido-mode
 (ido-mode 1)
 (setq ido-enable-flex-matching t)
 (setq ido-everywhere t)
 (setq ido-create-new-buffer 'always)
 (setq confirm-nonexistent-file-or-buffer nil)
+
+;; yasnippet setup
+(require 'yasnippet)
+(yas/initialize)
+
+;; Found at http://blog.iany.me/2012/03/use-popup-isearch-for-yasnippet-prompt/
+;; add some shotcuts in popup menu mode
+;; (define-key popup-menu-keymap (kbd "M-n") 'popup-next)
+;; (define-key popup-menu-keymap (kbd "M-p") 'popup-previous)
+
+;; (defun yas/popup-isearch-prompt (prompt choices &optional display-fn)
+;;   (when (featurep 'popup)
+;;     (popup-menu*
+;;      (mapcar
+;;       (lambda (choice)
+;;         (popup-make-item
+;;          (or (and display-fn (funcall display-fn choice))
+;;              choice)
+;;          :value choice))
+;;       choices)
+;;      :prompt prompt
+;;      ;; start isearch mode immediately
+;;      :isearch t
+;;      )))
+
+(setq yas/prompt-functions '(yas/ido-prompt yas/no-prompt))
+
+;; Make C-c c do comment-region
+(define-key global-map (kbd "C-c c") 'comment-region)
+
 
 ;; Run Emacs as a server
 (require 'server)
