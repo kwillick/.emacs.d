@@ -2,23 +2,24 @@
 # name: copyright notice
 # key: copyright
 # --
-`comment-start`${1:$(let ((width (+ (length (concat "Copyright (c) " (format-time-string "%Y") " "))
-                                    (length text))))
-                      (make-string width ?=))}
+`comment-start`${1:$(make-string (+ 21 (string-width text)) ?\=)}
  `(let* ((filename (buffer-file-name))
-             (name (if filename
-                       (file-name-nondirectory filename)
-                     (buffer-file-name))))
+         (name (if filename
+                   (file-name-nondirectory filename)
+                 (buffer-name))))
     (concat name "\n"))`
  Copyright (c) `(format-time-string "%Y")` ${1:`(user-full-name)`}
-${1:$(let ((width (+ (length (concat "Copyright (c) " (format-time-string "%Y") " "))
-                                    (length text))))
-                      (make-string width ?=))}
+${1:$(make-string (+ 21 (string-width text)) ?\=)}
 `comment-end`
+`(if (= (length comment-end) 0)
+         (save-excursion
+           (let* ((fc (lambda ()
+                        (forward-line)
+                        (insert (concat comment-start comment-start))))
+                  (actions (list fc fc fc fc fc)))
+             (forward-line -8)
+             (insert comment-start)
+             (mapc 'funcall actions))
+           "")
+       "")`
 $0
-`(when (= (length comment-end) 0)
-   (save-excursion
-     (re-search-backward (regexp-quote comment-start))
-       (let ((beg (point)))
-         (forward-line 4)
-         (comment-region beg (point)))))`
