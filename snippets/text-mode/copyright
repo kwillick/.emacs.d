@@ -2,7 +2,7 @@
 # name: copyright notice
 # key: copyright
 # --
-`comment-start`${1:$(make-string (+ 21 (string-width text)) ?\=)}
+${1:$(make-string (+ 21 (string-width text)) ?\=)}
  `(let* ((filename (buffer-file-name))
          (name (if filename
                    (file-name-nondirectory filename)
@@ -10,12 +10,11 @@
     (concat name "\n"))`
  Copyright (c) `(format-time-string "%Y")` ${1:`(user-full-name)`}
 ${1:$(make-string (+ 21 (string-width text)) ?\=)}
-`comment-end`
 `(if (= (length comment-end) 0)
          (save-excursion
            (let* ((fc (lambda ()
                         (forward-line)
-                        (insert (concat comment-start comment-start))))
+                        (insert comment-start)))
                   (actions (list fc fc fc fc fc)))
              (forward-line -8)
              (insert comment-start)

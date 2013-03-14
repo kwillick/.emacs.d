@@ -3,7 +3,6 @@
 # key: bsd
 # expand-env: ((yas/indent-line 'fixed))
 # --
-`comment-start`
  `(let* ((filename (buffer-file-name))
          (name (if filename
                    (file-name-nondirectory filename)
@@ -32,15 +31,11 @@
  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-`comment-end`
-`(if (= (length comment-end) 0)
-     (save-excursion
-       (let ((com (concat comment-start comment-start)))
-         (forward-line -26)
-         (insert comment-start)
-         (dotimes (i 24)
-           (forward-line)
-           (insert com)))
-       "")
-   "")`
+
+`(save-excursion
+   (forward-line -26)
+   (insert comment-start)
+   (dotimes (i 24)
+     (forward-line)
+     (insert comment-start)))`
 $0
