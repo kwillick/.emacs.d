@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: #if
+# key: mif
+# expand-env: ((yas/also-auto-indent-first-line t))
+# --
+#if ${1:expression}
+$0
+#endif //$1

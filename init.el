@@ -21,7 +21,7 @@
 
 
 (defvar my-packages
-  '(magit haskell-mode solarized-theme yasnippet markdown-mode expand-region)
+  '(magit haskell-mode solarized-theme yasnippet markdown-mode expand-region paredit)
   "A list of the packages I want to ensure are installed")
 
 ;; Based off of preludes prelude-install-packages
@@ -59,6 +59,7 @@
  '(ido-ignore-files (quote ("\\`CVS/" "\\`#" "\\`.#" "\\`\\.\\./" "\\`\\./" "\\.DS_Store")))
  '(indent-tabs-mode nil)
  '(inverse-video t)
+ '(magit-completing-read-function (quote magit-ido-completing-read))
  '(ns-alternate-modifier (quote meta))
  '(ns-command-modifier (quote meta))
  '(ns-right-alternate-modifier (quote super))
@@ -99,10 +100,12 @@
 (defun my-python-clear-buffer ()
   "Clear the python buffer, if it is running"
   (interactive)
-  (when python-buffer
-    (with-current-buffer python-buffer
-      (erase-buffer)
-      (python-send-string "\n"))))
+  (let ((python-buffer 
+         (get-buffer (format "*%s" (python-shell-get-process-name t)))))
+    (when python-buffer
+      (with-current-buffer python-buffer
+        (erase-buffer)
+        (python-shell-send-string "\n")))))
     
 ;; Modify some keys in python mode
 (add-hook 'python-mode-hook
@@ -163,4 +166,35 @@
 
 ;; Enable Rust
 (setq auto-mode-alist (cons '("\\.rs\\'" . rust-mode) auto-mode-alist))
+
+
+;; Better indent function
+(defun indent-region-or-buffer ()
+  "Indent a region, if none selected indent the whole buffer."
+  (interactive)
+  (save-excursion
+    (if (region-active-p)
+        (indent-region (region-beginning) (region-end))
+      (indent-region (point-min) (point-max)))))
+
+(global-set-key (kbd "C-M-\\") 'indent-region-or-buffer)
+
+;; Line movement functions
+(defun my-move-line-up ()
+  "Move the current line up."
+  (interactive)
+  (transpose-lines 1)
+  (forward-line -2)
+  (indent-according-to-mode))
+
+(defun my-move-line-down ()
+  "Move the current line down."
+  (interactive)
+  (forward-line 1)
+  (transpose-lines 1)
+  (forward-line -1)
+  (indent-according-to-mode))
+  
+(global-set-key (kbd "M-S-<up>") 'my-move-line-up)
+(global-set-key (kbd "M-S-<down>") 'my-move-line-down)
 

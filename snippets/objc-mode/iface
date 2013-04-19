@@ -1,0 +1,10 @@
+# name: interface
+# key: iface
+# --
+@interface $1 : ${2:NSObject}
+{
+}
+
+$0
+
+@end

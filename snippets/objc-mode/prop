@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: Property
+# key: prop
+# --
+@property (${1:nonatomic}) ${2:id} ${3:name};
+$0
