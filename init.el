@@ -1,4 +1,3 @@
-
 (require 'cl-lib)
 
 ;; Setup Emacs PATH
@@ -15,28 +14,41 @@
 
 ;; Add marmalade package archive
 (require 'package)
-(add-to-list 'package-archives 
-             '("marmalade" . "http://marmalade-repo.org/packages/") t)
+(defvar archive-marmalade '("marmalade" . "http://marmalade-repo.org/packages/"))
+(defvar archive-gnu '("gnu" . "http://elpa.gnu.org/packages/"))
+(defvar archive-melpa '("melpa" . "http://melpa.milkbox.net/packages/"))
+
+(add-to-list 'package-archives archive-marmalade)
+(add-to-list 'package-archives archive-melpa t)
 (package-initialize)
 
+(defun my-install-packages (&rest packages)
+  (mapc (lambda (package)
+          (let ((name (car package))
+                (src (cdr package)))
+            (unless (package-installed-p name)
+              (let ((package-archives (list src)))
+                (package-initialize)
+                (package-install name)))))
+        packages)
+  (package-initialize)
+  (delete-other-windows))
 
-(defvar my-packages
-  '(magit haskell-mode solarized-theme yasnippet markdown-mode expand-region paredit)
-  "A list of the packages I want to ensure are installed")
+(defun my-install-packages-perform ()
+  (my-install-packages
+   (cons 'magit archive-marmalade)
+   (cons 'solarized-theme archive-marmalade)
+   (cons 'yasnippet archive-marmalade)
+   (cons 'markdown-mode archive-marmalade)
+   (cons 'expand-region archive-marmalade)
+   (cons 'undo-tree archive-marmalade)
+   (cons 'd-mode archive-melpa)))
 
-;; Based off of preludes prelude-install-packages
-(defun my-ensure-packages-installed ()
-  (unless (cl-every 'package-installed-p my-packages)
-    (message "%s" "Some packages are missing. Refreshing package database...")
-    (package-refresh-contents)
-    (message "%s" "Done refreshing package database")
-    ;;install them
-    (dolist (pack my-packages)
-      (unless (package-installed-p pack)
-        (package-install pack)))))
-  
-(my-ensure-packages-installed)
-
+(condition-case nil
+    (my-install-packages-perform)
+  (error
+   (package-refresh-contents)
+   (my-install-packages-perform)))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -77,6 +89,12 @@
  ;; If there is more than one, they won't work right.
  '(default ((t (:inherit nil :stipple nil :background "#002b36" :foreground "#839496" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "apple" :family "Monaco")))))
 
+;; This macro is a helper around eval-after-load + progn
+(defmacro after-load (mode &rest body)
+  (declare (indent defun))
+  `(eval-after-load ,mode
+     '(progn ,@body)))
+
 
 ;; Load theme
 (require 'solarized-theme)
@@ -94,30 +112,89 @@
       '("" (:eval (my-frame-title-format))))
 
 (show-paren-mode 1)
+(which-function-mode 1)
 
+(defvar clean-mode-line-clean-alist
+  '((yas-minor-mode . " y")
+    (undo-tree-mode . " U")
+    (abbrev-mode . "")
+    ;; major modes
+    (python-mode . "py")
+    (emacs-lisp-mode "el")))
+
+(defun clean-mode-line ()
+  (interactive)
+  (dolist (mode-pair clean-mode-line-clean-alist)
+    (let* ((key (car mode-pair))
+           (value (cdr mode-pair))
+           (cur-mode-str (cdr (assq key minor-mode-alist))))
+      (when cur-mode-str
+        (setcar cur-mode-str value))
+      (when (eq key major-mode)
+        (setq mode-name value)))))
+
+(add-hook 'after-change-major-mode-hook 'clean-mode-line)
+
+
+;; Open init file
+(defun find-user-init-file ()
+  "Open init.el file"
+  (interactive)
+  (find-file user-init-file))
+
+;; Setup ido-mode
+(ido-mode 1)
+(setq ido-enable-flex-matching t
+      ido-everywhere t
+      ido-create-new-buffer 'always
+      confirm-nonexistent-file-or-buffer nil)
+
+;; undo-tree
+(global-undo-tree-mode)
 
 ;; Setup python stuff
-(defun my-python-clear-buffer ()
-  "Clear the python buffer, if it is running"
-  (interactive)
-  (let ((python-buffer 
-         (get-buffer (format "*%s" (python-shell-get-process-name t)))))
-    (when python-buffer
-      (with-current-buffer python-buffer
-        (erase-buffer)
-        (python-shell-send-string "\n")))))
-    
-;; Modify some keys in python mode
-(add-hook 'python-mode-hook
-          '(lambda ()
-             (setq  python-remove-cwd-from-path nil)
-             ;;(define-key python-mode-map "\C-c\C-v" 'virtualenv-run-python)
-             (define-key python-mode-map "\C-c\C-k" 'my-python-clear-buffer)))
+(after-load 'python
+  (defun python-set-virtualenv-path (dir)
+    "Set the python-shell-virtualenv-path to dir. If already set, set it to nil."
+    (interactive (if (null python-shell-virtualenv-path)
+                     (list (expand-file-name 
+                            (read-directory-name "virtualenv dir: " nil nil t)))
+                   (list nil)))
+    (setq python-shell-virtualenv-path dir))
 
-(require 'virtualenv)
+  (defun my-python-fixup-shift-region (start end)
+    "Given start and end return start moved to beginning-of-line and end moved to end-of-line"
+    (when mark-active
+      (let ((beg (region-beginning))
+            (end (region-end)))
+        (goto-char beg)
+        (beginning-of-line)
+        (setq beg (point))
+        (goto-char end)
+        (end-of-line)
+        (cons beg (point)))))
+  
+  (defadvice python-indent-shift-right (around python-indent-shift-right-around
+                                               (start end &optional count)
+                                               activate)
+    (save-excursion
+      (let ((new-region (my-python-fixup-shift-region start end)))
+        (setq start (car new-region))
+        (setq end (cdr new-region))
+        ad-do-it)))
+  
+  (defadvice python-indent-shift-left (around python-indent-shift-left-around
+                                              (start end &optional count)
+                                              activate)
+    (save-excursion
+      (let ((new-region (my-python-fixup-shift-region start end)))
+        (setq start (car new-region))
+        (setq end (cdr new-region))
+        ad-do-it)))
+)
 
 
-;; better window movement
+;; Nicer window movement
 (global-set-key (kbd "S-<left>")  'windmove-left)
 (global-set-key (kbd "S-<right>") 'windmove-right)
 (global-set-key (kbd "S-<up>")    'windmove-up)
@@ -136,13 +213,6 @@
 (require 'dired-x)
 (setq dired-omit-files "\\`\\.DS_Store")
 (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
-
-;; Setup ido-mode
-(ido-mode 1)
-(setq ido-enable-flex-matching t)
-(setq ido-everywhere t)
-(setq ido-create-new-buffer 'always)
-(setq confirm-nonexistent-file-or-buffer nil)
 
 ;; yasnippet setup
 (require 'yasnippet)
@@ -163,9 +233,11 @@
 
 ;; Disable upcase-region warning
 (put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
 
-;; Enable Rust
-(setq auto-mode-alist (cons '("\\.rs\\'" . rust-mode) auto-mode-alist))
+;; Enable addition programming language modes
+(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
+(add-to-list 'auto-mode-alist '("\\.d[i]?\\'" . d-mode))
 
 
 ;; Better indent function
@@ -198,3 +270,17 @@
 (global-set-key (kbd "M-S-<up>") 'my-move-line-up)
 (global-set-key (kbd "M-S-<down>") 'my-move-line-down)
 
+
+;; indirect buffer + narrowing
+(defun my-narrow-to-region-indirect (start end)
+  "Restrict editing in this buffer to the current region, indirectly."
+  (interactive "r")
+  (let ((buf (clone-indirect-buffer nil nil)))
+    (with-current-buffer buf
+      (narrow-to-region start end)
+      (switch-to-buffer buf))))
+
+;; byte-compile the current buffer
+(defun byte-compile-this-file ()
+  (interactive)
+  (byte-compile-file (buffer-file-name)))
