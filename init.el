@@ -56,11 +56,21 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(c-basic-offset 4)
- '(c-default-style (quote ((c-mode . "bsd") (c++-mode . "bsd") (java-mode . "bsd") (awk-mode . "awk") (other . "bsd"))))
+ '(c-default-style 
+   (quote ((c-mode . "bsd") (c++-mode . "bsd") (java-mode . "bsd") 
+           (awk-mode . "awk") (other . "bsd"))))
  '(c-echo-syntactic-information-p t)
  '(c-electric-pound-behavior (quote (alignleft)))
- '(c-hanging-braces-alist (quote ((defun-close) (class-close) (inline-close) (block-close) (statement-cont) (substatement-open after) (brace-list-open) (brace-list-close) (brace-entry-open) (extern-lang-open after) (namespace-open after) (namespace-close) (module-open after) (module-close) (composition-open after) (composition-close) (inexpr-class-open after) (inexpr-class-close before) (arglist-cont-nonempty))))
- '(c-offsets-alist (quote ((access-label . /) (arglist-close . 0) (inextern-lang . 0) (innamespace . 0))))
+ '(c-hanging-braces-alist 
+   (quote ((defun-close) (class-close) (inline-close) (block-close) 
+           (statement-cont) (substatement-open after) (brace-list-open)
+           (brace-list-close) (brace-entry-open) (extern-lang-open after)
+           (namespace-open after) (namespace-close) (module-open after) 
+           (module-close) (composition-open after) (composition-close) 
+           (inexpr-class-open after) (inexpr-class-close before) 
+           (arglist-cont-nonempty))))
+ '(c-offsets-alist 
+   (quote ((access-label . /) (arglist-close . 0) (inextern-lang . 0) (innamespace . 0))))
  '(c-tab-always-indent nil)
  '(c-toggle-auto-hungry-state nil)
  '(column-number-mode t)
@@ -135,12 +145,27 @@
 
 (add-hook 'after-change-major-mode-hook 'clean-mode-line)
 
+;; shell stuff
+(after-load 'pcomplete
+  (setq pcomplete-ignore-case t))
+
+(after-load 'shell
+  (defun get-user-shell ()
+    (with-temp-buffer
+      (insert-file-contents "/etc/shells")
+      (forward-line 4)
+      (let ((p (point)))
+        (end-of-line)
+        (buffer-substring p (point)))))
+  (setq explicit-shell-file-name (get-user-shell))
+  (add-to-list 'explicit-bash-args "--login"))
 
 ;; Open init file
-(defun find-user-init-file ()
+(defun goto-init-file ()
   "Open init.el file"
   (interactive)
   (find-file user-init-file))
+
 
 ;; Setup ido-mode
 (ido-mode 1)
@@ -148,6 +173,16 @@
       ido-everywhere t
       ido-create-new-buffer 'always
       confirm-nonexistent-file-or-buffer nil)
+
+
+(defun find-file-as-root ()
+  "Call ido-find-file using tramp/sudo"
+  (interactive)
+  (let ((file (ido-read-file-name "Edit as root: ")))
+    (unless (file-writable-p file)
+      (setq file (concat "/sudo:root@localhost:" file)))
+    (find-file file)))
+
 
 ;; undo-tree
 (global-undo-tree-mode)
