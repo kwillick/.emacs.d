@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: ns 
+# name: namespace
 # key: ns
 # --
 namespace ${1:name}
@@ -7,4 +7,4 @@ namespace ${1:name}
 
 $0
 
-} //$1
+} //namespace $1
