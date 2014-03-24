@@ -12,7 +12,7 @@
 (my-set-path-from-shell)
 
 ;; Setup load-path
-(add-to-list 'load-path (expand-file-name user-emacs-directory))
+;;(add-to-list 'load-path (expand-file-name user-emacs-directory))
 
 ;; Add marmalade and melpa package archives
 (require 'package)
@@ -38,7 +38,7 @@
 
 (defun my-install-packages-perform ()
   (my-install-packages
-   (cons 'magit archive-marmalade)
+   (cons 'magit archive-melpa)
    (cons 'solarized-theme archive-melpa)
    (cons 'yasnippet archive-melpa)
    (cons 'markdown-mode archive-marmalade)
@@ -63,22 +63,63 @@
  ;; If there is more than one, they won't work right.
  '(c-backslash-max-column 90)
  '(c-basic-offset 4)
- '(c-default-style (quote ((c-mode . "bsd") (c++-mode . "bsd") (java-mode . "bsd") (awk-mode . "awk") (other . "bsd"))))
+ '(c-default-style
+   (quote
+    ((c-mode . "bsd")
+     (c++-mode . "bsd")
+     (java-mode . "bsd")
+     (awk-mode . "awk")
+     (other . "bsd"))))
  '(c-echo-syntactic-information-p t)
  '(c-electric-pound-behavior (quote (alignleft)))
- '(c-hanging-braces-alist (quote ((defun-close) (class-close) (inline-close) (block-close) (statement-cont) (substatement-open after) (brace-list-open) (brace-list-close) (brace-entry-open) (extern-lang-open after) (namespace-open after) (namespace-close) (module-open after) (module-close) (composition-open after) (composition-close) (inexpr-class-open after) (inexpr-class-close before) (arglist-cont-nonempty))))
- '(c-offsets-alist (quote ((access-label . /) (arglist-close . 0) (inextern-lang . 0) (innamespace . 0))))
+ '(c-hanging-braces-alist
+   (quote
+    ((defun-close)
+     (class-close)
+     (inline-close)
+     (block-close)
+     (statement-cont)
+     (substatement-open after)
+     (brace-list-open)
+     (brace-list-close)
+     (brace-entry-open)
+     (extern-lang-open after)
+     (namespace-open after)
+     (namespace-close)
+     (module-open after)
+     (module-close)
+     (composition-open after)
+     (composition-close)
+     (inexpr-class-open after)
+     (inexpr-class-close before)
+     (arglist-cont-nonempty))))
+ '(c-offsets-alist
+   (quote
+    ((access-label . /)
+     (arglist-close . 0)
+     (inextern-lang . 0)
+     (innamespace . 0))))
  '(c-tab-always-indent nil)
  '(c-toggle-auto-hungry-state nil)
  '(column-number-mode t)
  '(comint-process-echoes t)
- '(custom-safe-themes (quote ("d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default)))
- '(default-frame-alist (quote ((vertical-scroll-bars) (width . 100) (height . 66))))
+ '(custom-safe-themes
+   (quote
+    ("d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default)))
+ '(default-frame-alist
+    (quote
+     ((vertical-scroll-bars)
+      (width . 100)
+      (height . 60))))
  '(haskell-mode-hook (quote (turn-on-haskell-indent turn-on-haskell-doc-mode)))
- '(ido-ignore-files (quote ("\\`CVS/" "\\`#" "\\`.#" "\\`\\.\\./" "\\`\\./" "\\.DS_Store")))
+ '(ido-ignore-files
+   (quote
+    ("\\`CVS/" "\\`#" "\\`.#" "\\`\\.\\./" "\\`\\./" "\\.DS_Store")))
  '(indent-tabs-mode nil)
  '(inverse-video t)
+ '(js-indent-level 2)
  '(magit-completing-read-function (quote magit-ido-completing-read))
+ '(magit-emacsclient-executable "/usr/local/bin/emacsclient")
  '(ns-alternate-modifier (quote meta))
  '(ns-command-modifier (quote meta))
  '(ns-right-alternate-modifier (quote super))
@@ -86,7 +127,6 @@
  '(python-indent-guess-indent-offset nil)
  '(scroll-bar-mode nil)
  '(standard-indent 2)
- '(js-indent-level 2)
  '(tab-width 4)
  '(tool-bar-mode nil))
 
@@ -95,20 +135,13 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "apple" :family "Monaco")))))
+ '(default ((t (:inherit nil :stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "nil" :family "Monaco")))))
 
 
 ;; Load theme
 (require 'solarized)
 (require 'solarized-theme)
 (load-theme 'solarized-dark t)
-
-
-;; This macro is a helper around eval-after-load + progn
-(defmacro after-load (mode &rest body)
-  (declare (indent defun))
-  `(eval-after-load ,mode
-     '(progn ,@body)))
 
 
 ;; Format title to show file path or buffer name
@@ -124,9 +157,13 @@
 (show-paren-mode 1)
 (which-function-mode 1)
 
+
+;; Stuff for a smaller less cluttered mode line
 (defvar clean-mode-line-clean-alist
   '((yas-minor-mode . " y")
     (abbrev-mode . "")
+    (auto-revert-mode . "")
+    (magit-auto-revert-mode . "")
     ;; major modes
     (python-mode . "py")
     (emacs-lisp-mode . "el")
@@ -155,7 +192,7 @@
       (end-of-line)
       (buffer-substring p (point)))))
 
-(after-load 'shell
+(with-eval-after-load 'shell
   ;; (defadvice shell (before shell-check-remote (&optional buffer) activate)
   ;;   (setq explicit-shell-file-name (if (file-remote-p default-directory)
   ;;                                      nil
@@ -203,7 +240,7 @@
 
 
 ;; Setup python stuff
-(after-load 'python
+(with-eval-after-load 'python
   (defun python-set-virtualenv-path (dir)
     "Set the python-shell-virtualenv-path to dir. If already set, set it to nil."
     (interactive (if (null python-shell-virtualenv-path)
