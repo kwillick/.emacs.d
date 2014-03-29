@@ -291,13 +291,19 @@
 (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
 
 ;; magit stuff
-(defun my-magit-stage-region (start end)
-  (interactive "r")
-  (let ((count (count-lines start end)))
-    (goto-char start)
-    (dotimes (var count)
-      (magit-stage-item))))
+(with-eval-after-load 'magit
+  (defun my-magit-stage-region (start end)
+    (interactive "r")
+    (let ((count (count-lines start end)))
+      (goto-char start)
+      (dotimes (var count)
+        (magit-stage-item))))
 
+  (defadvice magit-status (around my-magit-fullscreen activate)
+    (window-configuration-to-register :magit-fullscreen)
+    ad-do-it
+    (delete-other-windows))
+)
 
 ;; Nicer window movement
 (global-set-key (kbd "S-<left>")  'windmove-left)
