@@ -110,7 +110,8 @@
     (quote
      ((vertical-scroll-bars)
       (width . 100)
-      (height . 60))))
+      (height . 62))))
+ '(git-commit-fill-column 80)
  '(haskell-mode-hook (quote (turn-on-haskell-indent turn-on-haskell-doc-mode)))
  '(ido-ignore-files
    (quote
@@ -118,8 +119,10 @@
  '(indent-tabs-mode nil)
  '(inverse-video t)
  '(js-indent-level 2)
+ '(js-switch-indent-offset 2)
  '(magit-completing-read-function (quote magit-ido-completing-read))
  '(magit-emacsclient-executable "/usr/local/bin/emacsclient")
+ '(magit-use-overlays nil)
  '(ns-alternate-modifier (quote meta))
  '(ns-command-modifier (quote meta))
  '(ns-right-alternate-modifier (quote super))
@@ -135,7 +138,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "nil" :family "Monaco")))))
+ '(default ((((class color) (min-colors 89)) (:foreground "#657b83" :background "#fdf6e3")))))
 
 
 ;; Load theme
@@ -156,7 +159,6 @@
 
 (show-paren-mode 1)
 (which-function-mode 1)
-
 
 ;; Stuff for a smaller less cluttered mode line
 (defvar clean-mode-line-clean-alist
@@ -290,20 +292,30 @@
 ;; emacs-lisp stuff
 (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
 
-;; magit stuff
-(with-eval-after-load 'magit
-  (defun my-magit-stage-region (start end)
-    (interactive "r")
-    (let ((count (count-lines start end)))
-      (goto-char start)
-      (dotimes (var count)
-        (magit-stage-item))))
+;; prog-mode hook
+(add-hook 'prog-mode-hook
+          (lambda () (imenu-add-menubar-index)))
 
-  (defadvice magit-status (around my-magit-fullscreen activate)
-    (window-configuration-to-register :magit-fullscreen)
-    ad-do-it
-    (delete-other-windows))
-)
+;; magit stuff
+(defun my-magit-status-buffer-switch-function (buffer)
+  (pop-to-buffer buffer)
+  (delete-other-windows))
+
+(setq magit-status-buffer-switch-function 'my-magit-status-buffer-switch-function)
+
+(defun my-magit-push-dwim (arg)
+  "Slight modification of magit-push-dwim to ask for confirmation"
+  (interactive "P")
+  (when (y-or-n-p "Are you sure you want to push? ")
+    (magit-push-dwim arg)))
+
+(setq magit-push-hook '(my-magit-push-dwim))
+
+;; ediff
+;; hack because ediff-control-frame-parameters is weird (top and left)
+(require 'ediff-wind)
+(setcdr (assoc 'left ediff-control-frame-parameters) 1)
+(setcdr (assoc 'top ediff-control-frame-parameters) 1)
 
 ;; Nicer window movement
 (global-set-key (kbd "S-<left>")  'windmove-left)
@@ -372,6 +384,15 @@
   
 (global-set-key (kbd "M-S-<up>") 'my-move-line-up)
 (global-set-key (kbd "M-S-<down>") 'my-move-line-down)
+
+;; backward line killing
+(defun my-backward-kill-line ()
+  (interactive)
+  (let ((pos (point)))
+    (beginning-of-line)
+    (kill-region (point) pos)))
+
+(global-set-key (kbd "M-k") 'my-backward-kill-line)
 
 ;; indirect buffer + narrowing
 (defun my-narrow-to-region-indirect (start end)
