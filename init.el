@@ -38,17 +38,19 @@
 
 (defun my-install-packages-perform ()
   (my-install-packages
-   (cons 'magit archive-melpa)
+   (cons 'cmake-mode archive-marmalade)
+   (cons 'company archive-melpa)
+   (cons 'd-mode archive-melpa)
+   (cons 'expand-region archive-marmalade)
+   (cons 'glsl-mode archive-melpa)
+   (cons 'go-mode archive-melpa)
+   (cons 'markdown-mode archive-marmalade)
+   (cons 'rainbow-delimiters archive-melpa)
+   (cons 'rust-mode archive-melpa)
+   (cons 'smex archive-marmalade)
    (cons 'solarized-theme archive-melpa)
    (cons 'yasnippet archive-melpa)
-   (cons 'markdown-mode archive-marmalade)
-   (cons 'expand-region archive-marmalade)
-   (cons 'rust-mode archive-melpa)
-   (cons 'd-mode archive-melpa)
-   (cons 'cmake-mode archive-marmalade)
-   (cons 'glsl-mode archive-melpa)
-   (cons 'rainbow-delimiters archive-melpa)
-   (cons 'smex archive-marmalade)))
+   (cons 'magit archive-melpa)))
 
 (condition-case nil
     (my-install-packages-perform)
@@ -111,7 +113,6 @@
      ((vertical-scroll-bars)
       (width . 100)
       (height . 62))))
- '(git-commit-fill-column 80)
  '(haskell-mode-hook (quote (turn-on-haskell-indent turn-on-haskell-doc-mode)))
  '(ido-ignore-files
    (quote
@@ -138,7 +139,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((((class color) (min-colors 89)) (:foreground "#657b83" :background "#fdf6e3")))))
+ '(default ((t (:inherit nil :stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "nil" :family "Monaco")))))
 
 
 ;; Load theme
@@ -166,6 +167,7 @@
     (abbrev-mode . "")
     (auto-revert-mode . "")
     (magit-auto-revert-mode . "")
+    (company-mode . " comp")
     ;; major modes
     (python-mode . "py")
     (emacs-lisp-mode . "el")
@@ -289,14 +291,32 @@
             (which-function-mode -1)
             (rainbow-delimiters-mode)))
 
+;; company-mode stuff
+(require 'company)
+
 ;; emacs-lisp stuff
 (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
 
+;; go-mode stuff
+(with-eval-after-load 'go-mode
+  (defun my-gofmt-before-save (&optional arg)
+    (interactive "p")
+    (gofmt)
+    (save-buffer arg))
+
+  (add-hook 'go-mode-hook
+            (lambda ()
+              (local-set-key (kbd "C-x C-s") 'my-gofmt-before-save))))
+  
+
 ;; prog-mode hook
 (add-hook 'prog-mode-hook
-          (lambda () (imenu-add-menubar-index)))
+          (lambda ()
+            (imenu-add-menubar-index)))
 
 ;; magit stuff
+(require 'magit)
+
 (defun my-magit-status-buffer-switch-function (buffer)
   (pop-to-buffer buffer)
   (delete-other-windows))
