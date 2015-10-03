@@ -1,8 +1,0 @@
-# name: implementation
-# key: impl
-# --
-@implementation $1
-
-$0
-
-@end

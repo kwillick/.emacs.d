@@ -18,10 +18,12 @@
 (require 'package)
 (defvar archive-marmalade '("marmalade" . "http://marmalade-repo.org/packages/"))
 (defvar archive-gnu '("gnu" . "http://elpa.gnu.org/packages/"))
-(defvar archive-melpa '("melpa" . "http://melpa.milkbox.net/packages/"))
+(defvar archive-melpa '("melpa" . "https://melpa.org/packages/"))
+(defvar archive-melpa-stable '("melpa-stable" . "https://stable.melpa.org/packages/"))
 
 (add-to-list 'package-archives archive-marmalade t)
 (add-to-list 'package-archives archive-melpa t)
+(add-to-list 'package-archives archive-melpa-stable t)
 (package-initialize)
 
 (defun my-install-packages (&rest packages)
@@ -40,17 +42,21 @@
   (my-install-packages
    (cons 'cmake-mode archive-marmalade)
    (cons 'company archive-melpa)
-   (cons 'd-mode archive-melpa)
+   (cons 'company-racer archive-melpa)
+   (cons 'd-mode archive-melpa-stable)
+   (cons 'dash archive-melpa)
    (cons 'expand-region archive-marmalade)
+   (cons 'flycheck archive-melpa-stable)
+   (cons 'flycheck-rust archive-melpa)
    (cons 'glsl-mode archive-melpa)
-   (cons 'go-mode archive-melpa)
+   (cons 'go-mode archive-melpa-stable)
    (cons 'markdown-mode archive-marmalade)
-   (cons 'rainbow-delimiters archive-melpa)
+   (cons 'racer archive-melpa)
+   (cons 'rainbow-delimiters archive-melpa-stable)
    (cons 'rust-mode archive-melpa)
    (cons 'smex archive-marmalade)
-   (cons 'solarized-theme archive-melpa)
-   (cons 'yasnippet archive-melpa)
-   (cons 'magit archive-melpa)))
+   (cons 'solarized-theme archive-melpa-stable)
+   (cons 'magit archive-melpa-stable)))
 
 (condition-case nil
     (my-install-packages-perform)
@@ -163,8 +169,7 @@
 
 ;; Stuff for a smaller less cluttered mode line
 (defvar clean-mode-line-clean-alist
-  '((yas-minor-mode . " y")
-    (abbrev-mode . "")
+  '((abbrev-mode . "")
     (auto-revert-mode . "")
     (magit-auto-revert-mode . "")
     (company-mode . " comp")
@@ -291,11 +296,44 @@
             (which-function-mode -1)
             (rainbow-delimiters-mode)))
 
-;; company-mode stuff
+;; company-mode and racer stuff
 (require 'company)
+(require 'company-racer)
+(require 'racer)
+(setq company-idle-delay 0.2)
+(setq company-minimum-prefix-length 2)
+
+(setq racer-cmd "/Users/kipp/Documents/sources/racer/target/release/racer")
+(setq racer-rust-src-path "/Users/kipp/Documents/sources/rust/src")
+
+(setq company-racer-executable racer-cmd)
+(setq company-racer-rust-src racer-rust-src-path)
+
+;; rust-mode stuff
+(defun my-rust-mode-hook ()
+  ;; Turn on racer
+  (racer-mode 1)
+  (eldoc-mode 1)
+  
+  ;; Turn on flycheck-rust
+  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+  
+  ;; Turn on company-mode
+  (company-mode 1)
+  
+  ;; Set company-racer as company backend
+  (set (make-local-variable 'company-backends) '(company-racer))
+  
+  ;; Key binding to jump to method definition
+  (local-set-key (kbd "M-.") #'racer-find-definition)
+  
+  ;; Key binding to auto complete and indent
+  (local-set-key (kbd "TAB") #'company-indent-or-complete-common))
+
+(add-hook 'rust-mode-hook #'my-rust-mode-hook)
 
 ;; emacs-lisp stuff
-(add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
+(add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
 
 ;; go-mode stuff
 (with-eval-after-load 'go-mode
@@ -323,13 +361,22 @@
 
 (setq magit-status-buffer-switch-function 'my-magit-status-buffer-switch-function)
 
-(defun my-magit-push-dwim (arg)
-  "Slight modification of magit-push-dwim to ask for confirmation"
-  (interactive "P")
-  (when (y-or-n-p "Are you sure you want to push? ")
-    (magit-push-dwim arg)))
+(require 'dash)
 
-(setq magit-push-hook '(my-magit-push-dwim))
+(defmacro my-ask-first-advice (message &rest funs)
+  "Add a y-or-n-p prompt of MESSAGE to all functions in funs"
+  (let ((ask `(lambda (&rest args)
+                (y-or-n-p ,message))))
+    (cons 'progn
+          (-map (lambda (fn)
+                  `(advice-add ,fn :before-while ,ask '((name . "my-ask-first-advice"))))
+                funs))))
+ 
+(my-ask-first-advice "Are you sure you want to push? "
+                     'magit-push-current
+                     'magit-push-elsewhere
+                     'magit-push-implicitly
+                     'magit-push-quickly)
 
 ;; ediff
 ;; hack because ediff-control-frame-parameters is weird (top and left)
@@ -356,11 +403,6 @@
 (require 'dired-x)
 (setq dired-omit-files "\\`\\.DS_Store")
 (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
-
-;; yasnippet setup
-(require 'yasnippet)
-(yas-global-mode)
-(setq yas-prompt-functions '(yas-ido-prompt yas-no-prompt))
 
 ;; Setup expand-region
 (require 'expand-region)
@@ -413,6 +455,13 @@
     (kill-region (point) pos)))
 
 (global-set-key (kbd "M-k") 'my-backward-kill-line)
+
+(defun my-emacs-quit ()
+  (interactive)
+  (when (y-or-n-p "Are you sure you want to quit?")
+    (save-buffers-kill-terminal)))
+
+(global-set-key (kbd "C-x C-c") 'my-emacs-quit)
 
 ;; indirect buffer + narrowing
 (defun my-narrow-to-region-indirect (start end)
