@@ -16,8 +16,8 @@
 
 ;; Add marmalade and melpa package archives
 (require 'package)
-(defvar archive-marmalade '("marmalade" . "http://marmalade-repo.org/packages/"))
-(defvar archive-gnu '("gnu" . "http://elpa.gnu.org/packages/"))
+(defvar archive-marmalade '("marmalade" . "https://marmalade-repo.org/packages/"))
+(defvar archive-gnu '("gnu" . "https://elpa.gnu.org/packages/"))
 (defvar archive-melpa '("melpa" . "https://melpa.org/packages/"))
 (defvar archive-melpa-stable '("melpa-stable" . "https://stable.melpa.org/packages/"))
 
@@ -119,6 +119,10 @@
      ((vertical-scroll-bars)
       (width . 100)
       (height . 62))))
+ '(grep-command "egrep -nH -e ")
+ '(grep-find-command
+   (quote
+    ("find . -type f -exec egrep -nH -e \"\" {} +" . 36)))
  '(haskell-mode-hook (quote (turn-on-haskell-indent turn-on-haskell-doc-mode)))
  '(ido-ignore-files
    (quote
@@ -145,7 +149,11 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "nil" :family "Monaco")))))
+ '(default ((t (:inherit nil :stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "nil" :family "Monaco"))))
+ '(magit-blame-date ((t (:foreground "#F2804F" :background nil))))
+ '(magit-blame-heading ((t (:foreground "#073642" :background nil))))
+ '(magit-blame-name ((t (:foreground "#F2804F" :background nil))))
+ '(magit-blame-summary ((t (:foreground "#d33682" :background nil :weight bold)))))
 
 
 ;; Load theme
@@ -246,6 +254,11 @@
     (unless (file-writable-p file)
       (setq file (concat "/sudo:root@localhost:" file)))
     (find-file file)))
+
+
+;; Add flyspell to text-mode
+(add-hook 'text-mode-hook (lambda ()
+                            (flyspell-mode 1)))
 
 
 ;; Setup python stuff
@@ -377,6 +390,11 @@
                      'magit-push-elsewhere
                      'magit-push-implicitly
                      'magit-push-quickly)
+
+;; Disable read-only-mode in git-rebase-mode
+(add-hook 'git-rebase-mode-hook
+          (lambda ()
+            (read-only-mode -1)))
 
 ;; ediff
 ;; hack because ediff-control-frame-parameters is weird (top and left)
