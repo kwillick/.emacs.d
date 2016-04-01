@@ -50,6 +50,7 @@
    (cons 'flycheck-rust archive-melpa)
    (cons 'glsl-mode archive-melpa)
    (cons 'go-mode archive-melpa-stable)
+   (cons 'ido-completing-read+ archive-melpa-stable)
    (cons 'markdown-mode archive-marmalade)
    (cons 'racer archive-melpa)
    (cons 'rainbow-delimiters archive-melpa-stable)
