@@ -372,11 +372,11 @@
 ;; magit stuff
 (require 'magit)
 
-(defun my-magit-status-buffer-switch-function (buffer)
-  (pop-to-buffer buffer)
-  (delete-other-windows))
-
-(setq magit-status-buffer-switch-function 'my-magit-status-buffer-switch-function)
+(add-hook 'magit-post-display-buffer-hook
+          (lambda ()
+            (let ((buffer (current-buffer)))
+              (when (eq major-mode 'magit-status-mode)
+                (delete-other-windows)))))
 
 (require 'dash)
 
