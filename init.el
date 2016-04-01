@@ -57,7 +57,8 @@
    (cons 'rust-mode archive-melpa)
    (cons 'smex archive-marmalade)
    (cons 'solarized-theme archive-melpa-stable)
-   (cons 'magit archive-melpa-stable)))
+   (cons 'magit archive-melpa-stable)
+   (cons 'web-mode archive-melpa-stable)))
 
 (condition-case nil
     (my-install-packages-perform)
@@ -305,7 +306,9 @@
 
 ;; javscript stuff
 ;; which-function-mode does not work with js very well
-(add-hook 'js-mode-hook
+(require 'web-mode)
+
+(add-hook 'web-mode-hook
           (lambda ()
             (which-function-mode -1)
             (rainbow-delimiters-mode)))
@@ -496,10 +499,8 @@
   (interactive)
   (byte-compile-file (buffer-file-name)))
 
-
 ;; cmake-mode
 (require 'cmake-mode)
-
 
 ;; Modify auto-mode-alist
 (add-to-list 'auto-mode-alist '("\\.mm\\'" . objc-mode))
@@ -511,7 +512,8 @@
 (add-to-list 'auto-mode-alist '("\\.vsh\\'" . glsl-mode))
 (add-to-list 'auto-mode-alist '("\\.fsh\\'" . glsl-mode))
 (add-to-list 'auto-mode-alist '("\\.gsh\\'" . glsl-mode))
-
+(add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
 
 ;; Change to ~/
 (cd "~/")
