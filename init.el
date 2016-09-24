@@ -40,6 +40,7 @@
 
 (defun my-install-packages-perform ()
   (my-install-packages
+   (cons 'cargo archive-melpa-stable)
    (cons 'cmake-mode archive-marmalade)
    (cons 'company archive-melpa)
    (cons 'company-racer archive-melpa)
@@ -345,7 +346,10 @@
   (local-set-key (kbd "M-.") #'racer-find-definition)
   
   ;; Key binding to auto complete and indent
-  (local-set-key (kbd "TAB") #'company-indent-or-complete-common))
+  (local-set-key (kbd "TAB") #'company-indent-or-complete-common)
+
+  ;; Enable cargo
+  (cargo-minor-mode 1))
 
 (add-hook 'rust-mode-hook #'my-rust-mode-hook)
 
