@@ -5,14 +5,14 @@
 ;; Setup Emacs PATH
 (defun my-set-path-from-shell ()
   (let ((path-from-shell
-         (shell-command-to-string "$SHELL -l -c 'echo -n $PATH'")))
+         (shell-command-to-string "EMACS=1 $SHELL -l -c 'echo -n $PATH'")))
   (setenv "PATH" path-from-shell)
   (setq exec-path (split-string path-from-shell path-separator))))
   
 (my-set-path-from-shell)
 
-;; Setup load-path
-;;(add-to-list 'load-path (expand-file-name user-emacs-directory))
+;; Setup load-path with "lisp" directory
+(add-to-list 'load-path (concat (expand-file-name user-emacs-directory) "lisp"))
 
 ;; Add marmalade and melpa package archives
 (require 'package)
@@ -309,10 +309,16 @@
 ;; which-function-mode does not work with js very well
 (require 'web-mode)
 
+(require 'prettier-js)
+(setq prettier-target-mode "web-mode")
+(setq prettier-width-mode nil)
+(setq prettier-args '("--bracket-spacing" "--trailing-comma" "--single-quote"))
+
 (add-hook 'web-mode-hook
           (lambda ()
             (which-function-mode -1)
-            (rainbow-delimiters-mode)))
+            (rainbow-delimiters-mode)
+            (add-hook 'before-save-hook 'prettier-before-save)))
 
 ;; company-mode and racer stuff
 (require 'company)
@@ -521,3 +527,4 @@
 
 ;; Change to ~/
 (cd "~/")
+(put 'erase-buffer 'disabled nil)
