@@ -8,6 +8,7 @@
 (add-to-list 'package-archives archive-melpa t)
 (add-to-list 'package-archives archive-melpa-stable t)
 (package-initialize)
+(package-refresh-contents)
 
 ;; Prefer packages from melpa-stable, then melpa, then gnu
 (setq package-archive-priorities
