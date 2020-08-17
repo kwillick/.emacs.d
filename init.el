@@ -306,7 +306,8 @@ if mode is active rename it to name."
   :ensure t
   :pin "melpa"
   :demand
-  :bind ("C-," . er/expand-region))
+  :config
+  (global-set-key (kbd "C-,") 'er/expand-region))
 
 (use-package flycheck
   :ensure t
