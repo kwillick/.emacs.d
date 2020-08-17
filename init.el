@@ -203,6 +203,18 @@ if mode is active rename it to name."
   :config (load-theme 'solarized-dark t))
 
 ;; Programming language modes
+(use-package lsp-mode
+  :ensure t
+  :pin "melpa-stable"
+  :after (spinner lsp-ui)
+  :commands (lsp lsp-deferred)
+  :config
+  (setq lsp-rust-server 'rust-analyzer))
+
+(use-package lsp-ui
+  :ensure t
+  :pin "melpa-stable")
+
 (use-package d-mode
   :ensure t
   :pin "melpa-stable")
@@ -247,7 +259,10 @@ if mode is active rename it to name."
   ;; Enable backtraces on panics
   (setenv "RUST_BACKTRACE" "1")
 
-  (electric-pair-mode 1))
+  (electric-pair-mode 1)
+
+  ;; Enable lsp
+  (lsp-deferred))
 
 (use-package rust-mode
   :ensure t
@@ -311,6 +326,10 @@ if mode is active rename it to name."
   (global-set-key (kbd "M-x") 'smex)
   (global-set-key (kbd "M-X") 'smex-major-mode-commands)
   (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command))
+
+(use-package spinner
+  :ensure t
+  :pin "gnu")
 
 ;; Magit
 ;; Magit uses this for magit-completing-read-function
@@ -404,7 +423,7 @@ if mode is active rename it to name."
  '(ns-command-modifier 'meta)
  '(ns-right-alternate-modifier 'super)
  '(package-selected-packages
-   '(magit ido-completing-read+ smex rainbow-delimiters flycheck-rust flycheck expand-region company web-mode cargo rust-mode markdown-mode go-mode glsl-mode d-mode solarized-theme dash use-package))
+   '(lsp-ui magit ido-completing-read+ smex rainbow-delimiters flycheck-rust flycheck expand-region company web-mode cargo rust-mode markdown-mode go-mode glsl-mode d-mode solarized-theme dash use-package))
  '(python-indent-guess-indent-offset nil)
  '(scroll-bar-mode nil)
  '(standard-indent 2)
