@@ -74,7 +74,9 @@
   '((abbrev-mode . "")
     (auto-revert-mode . "")
     (magit-auto-revert-mode . "")
-    (company-mode . " comp")
+    (company-mode . "")
+    (eldoc-mode . "")
+    (flycheck-mode . "")
     ;; major modes
     (python-mode . "py")
     (emacs-lisp-mode . "el")
