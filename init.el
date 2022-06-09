@@ -246,6 +246,14 @@ if mode is active rename it to name."
 	     ("\\.md\\'" . markdown-mode)
 	     ("\\.markdown\\'" . markdown-mode)))
 
+(use-package flycheck
+  :ensure t
+  :pin "melpa")
+
+(use-package flycheck-rust
+  :ensure t
+  :pin "melpa")
+
 (defun my-rust-mode-hook ()
   ;; Turn on flycheck-rust
   (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
@@ -308,14 +316,6 @@ if mode is active rename it to name."
   :demand
   :config
   (global-set-key (kbd "C-,") 'er/expand-region))
-
-(use-package flycheck
-  :ensure t
-  :pin "melpa-stable")
-
-(use-package flycheck-rust
-  :ensure t
-  :pin "melpa-stable")
 
 (use-package rainbow-delimiters
   :ensure t
@@ -422,12 +422,13 @@ if mode is active rename it to name."
  '(js-indent-level 2)
  '(js-switch-indent-offset 2)
  '(magit-completing-read-function 'magit-ido-completing-read)
+ '(magit-diff-arguments '("--no-ext-diff" "--stat"))
  '(magit-use-overlays nil)
  '(ns-alternate-modifier 'meta)
  '(ns-command-modifier 'meta)
  '(ns-right-alternate-modifier 'super)
  '(package-selected-packages
-   '(lsp-ui magit ido-completing-read+ smex rainbow-delimiters flycheck-rust flycheck expand-region company web-mode cargo rust-mode markdown-mode go-mode glsl-mode d-mode solarized-theme dash use-package))
+   '(lsp-ui magit ido-completing-read+ smex rainbow-delimiters expand-region company web-mode cargo rust-mode markdown-mode go-mode glsl-mode d-mode solarized-theme dash use-package))
  '(python-indent-guess-indent-offset nil)
  '(scroll-bar-mode nil)
  '(standard-indent 2)
@@ -435,11 +436,21 @@ if mode is active rename it to name."
  '(tool-bar-mode nil))
 
 ;; put the autosave and backup files in my emacs directory
-;; (defvar autosave-dir (expand-file-name "~/.emacs.d/autosaves/"))
-;; (defvar backup-dir (expand-file-name "~/.emacs.d/backups/"))
-;; (setq backup-directory-alist (list (cons ".*" backup-dir)))
-;; (setq auto-save-list-file-prefix autosave-dir)
-;; (setq auto-save-file-name-transforms `((".*" ,autosave-dir t)))
+(defun my-setup-autosave ()
+  (let* ((emacs-dir (expand-file-name user-emacs-directory))
+         (autosave-dir (concat emacs-dir "autosaves"))
+         (backup-dir (concat emacs-dir "backups")))
+    ;; Create autosave and backup directories
+    (make-directory autosave-dir t)
+    (make-directory backup-dir t)
+
+    ;; Send backups to backup-dir
+    (setq backup-directory-alist (list (cons ".*" backup-dir)))
+
+    ;; Send autosaves to autosave-dir
+    (setq auto-save-list-file-prefix autosave-dir)
+    (setq auto-save-file-name-transforms `((".*" ,autosave-dir t)))))
+(my-setup-autosave)
 
 
 ;; Remove .DS_Store files from dired
@@ -454,7 +465,7 @@ if mode is active rename it to name."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(default ((t (:inherit nil :stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight medium :height 102 :width medium :foundry "outline" :family "Consolas"))))
- '(magit-blame-date ((t (:foreground "#F2804F" :background nil))))
+ '(magit-blame-date ((t (:foreground "#F2804F" :background nil))) t)
  '(magit-blame-heading ((t (:foreground "#073642" :background nil))))
- '(magit-blame-name ((t (:foreground "#F2804F" :background nil))))
- '(magit-blame-summary ((t (:foreground "#d33682" :background nil :weight bold)))))
+ '(magit-blame-name ((t (:foreground "#F2804F" :background nil))) t)
+ '(magit-blame-summary ((t (:foreground "#d33682" :background nil :weight bold))) t))
