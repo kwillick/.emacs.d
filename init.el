@@ -62,6 +62,13 @@
   (setq w32-apps-modifier 'super)
   (global-set-key (kbd "s-l") 'goto-line)
 
+  ;; Fixup info on mingw64
+  (when (file-exists-p "c:/msys64")
+    (with-eval-after-load 'info
+      (setq Info-default-directory-list '("c:/msys64/mingw64/share/info/"))
+      (info-initialize)
+      (add-to-list 'Info-directory-list "c:/msys64/usr/share/info/" t)))
+
   (cd "c:/Users/kipp/"))
 
 (defun my-frame-title-format ()
