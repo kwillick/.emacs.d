@@ -7,14 +7,18 @@
 
 (add-to-list 'package-archives archive-melpa t)
 (add-to-list 'package-archives archive-melpa-stable t)
-(package-initialize)
-(package-refresh-contents)
 
 ;; Prefer packages from melpa-stable, then melpa, then gnu
 (setq package-archive-priorities
       '(("melpa-stable" . 2)
         ("melpa" . 1)
 	    ("gnu" . 0)))
+
+;; Fix gpg package checking on Windows with MSYS2
+(when (and (eq system-type 'windows-nt) (file-exists-p "c:/msys64"))
+  (setq package-gnupghome-dir "/home/kipp/.emacs.d/elpa/gnupg"))
+(package-initialize)
+(package-refresh-contents)
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
