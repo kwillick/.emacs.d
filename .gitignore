@@ -29,6 +29,7 @@
 autosaves/*
 backups/*
 elpa/*
+eln-cache/*
 tramp
 
 
