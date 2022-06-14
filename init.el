@@ -13,7 +13,7 @@
 ;; Prefer packages from melpa-stable, then melpa, then gnu
 (setq package-archive-priorities
       '(("melpa-stable" . 2)
-	    ("melpa" . 1)
+        ("melpa" . 1)
 	    ("gnu" . 0)))
 
 (unless (package-installed-p 'use-package)
@@ -438,8 +438,8 @@ if mode is active rename it to name."
 ;; put the autosave and backup files in my emacs directory
 (defun my-setup-autosave ()
   (let* ((emacs-dir (expand-file-name user-emacs-directory))
-         (autosave-dir (concat emacs-dir "autosaves"))
-         (backup-dir (concat emacs-dir "backups")))
+         (autosave-dir (concat emacs-dir "autosaves/"))
+         (backup-dir (concat emacs-dir "backups/")))
     ;; Create autosave and backup directories
     (make-directory autosave-dir t)
     (make-directory backup-dir t)
